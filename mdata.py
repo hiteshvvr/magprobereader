@@ -64,5 +64,10 @@ class MData():
         Bmod = self.readsd()
         
         return(msg, Bx, By, Bz, Bmod)
+    
+    def getrandomdata(self,num):
+        tdata = np.random.random(num)
+        xaxis = np.arange(num)
+        return(tdata)
 
     

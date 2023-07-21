@@ -33,6 +33,8 @@ class MainWindow(QWidget):
         self.in3layout = QHBoxLayout()
         self.in4layout = QHBoxLayout()
         self.in5layout = QHBoxLayout()
+        self.in6layout = QHBoxLayout()
+        self.in7layout = QHBoxLayout()
         # self.r1layout = QHBoxLayout()
         # self.r2layout = QHBoxLayout()
         
@@ -93,6 +95,62 @@ class MainWindow(QWidget):
 
         # self.field_runno = QLineEdit(str(self.runno))
         
+              
+        # self.mainlayout.addLayout(self.in5layout)
+        # self.mainlayout.addLayout(self.r1layout)
+        # self.mainlayout.addLayout(self.r2layout)
+        
+        # self.alayout.addWidget(self.pw1)
+        # self.alayout.addWidget(self.pw2)
+
+#******************************FUNCTIONS *******************************************************#
+        # self.noisedata = np.random.random(20)
+        # self.disax = np.arange(20)
+        
+        self.pw1 = pg.PlotWidget(title="Plot Bx")
+        self.pl1 = self.pw1.plot()
+        self.pw1.setLabel('left', 'Value', units='G/T')
+        self.pw1.setLabel('bottom', 'distance', units='mm/cm/inch')
+        self.pl1.setPen(color=(0, 0, 0), width=5)
+        self.pw1.showGrid(x=True, y=True)
+        self.pl1.setData(x = np.arange(30),y = self.data.getrandomdata(30))
+        
+        
+        self.pw2 = pg.PlotWidget(title="Plot By")
+        self.pl2 = self.pw2.plot()
+        self.pw2.setLabel('left', 'Value', units='G/T')
+        self.pw2.setLabel('bottom', 'distance', units='mm/cm/inch')
+        self.pl2.setPen(color=(0, 0, 0), width=5)
+        self.pw2.showGrid(x=True, y=True)
+        self.pl2.setData(x = np.arange(30),y = self.data.getrandomdata(30))
+        
+        self.pw3 = pg.PlotWidget(title="Plot Bz")
+        self.pl3 = self.pw3.plot()
+        self.pw3.setLabel('left', 'Value', units='G/T')
+        self.pw3.setLabel('bottom', 'distance', units='mm/cm/inch')
+        self.pl3.setPen(color=(0, 0, 0), width=5)
+        self.pw3.showGrid(x=True, y=True)
+        self.pl3.setData(x = np.arange(20),y = self.data.getrandomdata(20))
+        
+        self.pw4 = pg.PlotWidget(title="Plot Bm")
+        self.pl4 = self.pw4.plot()
+        self.pw4.setLabel('left', 'Value', units='G/T')
+        self.pw4.setLabel('bottom', 'distance', units='mm/cm/inch')
+        self.pl4.setPen(color=(0, 0, 0), width=5)
+        self.pw4.showGrid(x=True, y=True)
+        self.pl4.setData(x = np.arange(20),y = self.data.getrandomdata(20))
+        
+    ################ADD EVERYTING TO LAYOUT ############################
+    
+    
+        self.maintab.setLayout(self.mainlayout)
+        # self.tab1.setLayout(self.alayout)
+
+        # Add tabs to Widget
+        self.layout.addWidget(self.maintab)
+        self.setLayout(self.layout)
+
+
         self.in1layout.addWidget(self.button_connect)
         self.in1layout.addWidget(self.field_devname)
         
@@ -121,30 +179,22 @@ class MainWindow(QWidget):
         self.in5layout.addWidget(self.zlabel)
         self.in5layout.addWidget(self.field_z)
         self.in5layout.addWidget(self.field_total)   
+        
+        self.in6layout.addWidget(self.pw1)
+        self.in6layout.addWidget(self.pw2)
+        self.in7layout.addWidget(self.pw3)
+        self.in7layout.addWidget(self.pw4)
 
 
-       
+
         self.mainlayout.addLayout(self.in1layout)
         self.mainlayout.addLayout(self.in2layout)
         self.mainlayout.addLayout(self.in3layout)
         self.mainlayout.addLayout(self.in4layout)
         self.mainlayout.addLayout(self.in5layout)
-        # self.mainlayout.addLayout(self.in5layout)
-        # self.mainlayout.addLayout(self.r1layout)
-        # self.mainlayout.addLayout(self.r2layout)
-        
-        # self.alayout.addWidget(self.pw1)
-        # self.alayout.addWidget(self.pw2)
-
-        self.maintab.setLayout(self.mainlayout)
-        # self.tab1.setLayout(self.alayout)
-
-        # Add tabs to Widget
-        self.layout.addWidget(self.maintab)
-        self.setLayout(self.layout)
-
-#******************************FUNCTIONS *******************************************************#
-
+        self.mainlayout.addLayout(self.in6layout)
+        self.mainlayout.addLayout(self.in7layout)
+  
 #***************Functions for loading Data *****************************************************#
    
     def dialog(self):
@@ -190,3 +240,5 @@ class MainWindow(QWidget):
     
     def selectdisunit(self):
         return 0
+    
+   
