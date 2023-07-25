@@ -39,7 +39,7 @@ class MainWindow(QWidget):
         # self.r2layout = QHBoxLayout()
         
         
-        self.devname = '\dev\\ttyUSB0'
+        self.devname = '/dev/ttyUSB0'
         self.button_connect = QPushButton('Connect Device')
         self.button_connect.clicked.connect(self.connectdevice)
         self.field_devname = QLineEdit(self.devname)

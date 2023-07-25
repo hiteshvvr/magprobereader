@@ -14,9 +14,11 @@ class MData():
         tdata = ""
         while True: 
             achar = self.sd.read()
+            achar = achar.decode('utf-8')
+            # print(achar)
             if achar =='\r' or achar ==',':
                 return tdata 
-            tdata += achar
+            tdata += str(achar)
                         
     def writesd(self,msg):
         try:
@@ -30,8 +32,9 @@ class MData():
         return(msg)
     
     def connectdev(self, devname):
+        print(devname)
         try:
-            self.sd = ser.Serial(devname, baudrate=9600, bytesize=serial.SEVENBITS, parity=serial.PARITY_ODD, stopbits=serial.STOPBITS_ONE, timeout=0.1)
+            self.sd = ser.Serial(devname, baudrate=9600, bytesize=ser.SEVENBITS, parity=ser.PARITY_ODD, stopbits=ser.STOPBITS_ONE, timeout=0.1)
             msg = "connected to " + devname
         except:
             msg = "did not connect"
@@ -62,7 +65,6 @@ class MData():
         By = self.readsd()
         Bz = self.readsd()
         Bmod = self.readsd()
-        
         return(msg, Bx, By, Bz, Bmod)
     
     def getrandomdata(self,num):
