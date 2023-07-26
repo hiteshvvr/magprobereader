@@ -1,3 +1,0 @@
-x,y,z,Bx,By,Bz,Bmod
-mm,mm,mm,Gauss,Gauss,Gauss,Gauss
-0.0,0.0,0.0,89,56,63,7
