@@ -1,17 +1,21 @@
 import numpy as np
 import pandas as pd
 import serial as ser
+import os
 
 class MData():
     def __init__(self) -> None:
         self.sd = None # serial device object
         self.data = None
-        self.foldname = None
-        self.filename = None
+        self.filepath= None
         self.mdata = None
+        tzero = str(0.0)
+        self.field = {'x':tzero, 'y':tzero, 'z':tzero, 'Bx':tzero, 'By':tzero, 'Bz':tzero, 'Bmod':tzero }
         
     def readsd(self):
         tdata = ""
+        if self.sd is None:
+            return(str(np.random.randint(99)))
         while True: 
             achar = self.sd.read()
             achar = achar.decode('utf-8')
@@ -27,7 +31,7 @@ class MData():
             self.sd.write(msg)
             msg = 'written'
         except:
-            msg = 'could not write'
+            msg = 'could not write to serial device'
         
         return(msg)
     
@@ -61,15 +65,28 @@ class MData():
     
     def readalldata(self):
         msg = self.writesd(b"ALLF?\r")
-        Bx = self.readsd()
-        By = self.readsd()
-        Bz = self.readsd()
-        Bmod = self.readsd()
-        return(msg, Bx, By, Bz, Bmod)
+        self.field['Bx'] = self.readsd()
+        self.field['By'] = self.readsd()
+        self.field['Bz'] = self.readsd()
+        self.field['Bmod'] = self.readsd()
+        return(msg)
     
     def getrandomdata(self,num):
         tdata = np.random.random(num)
         xaxis = np.arange(num)
         return(tdata)
-
+    
+    def getfielddata(self,axis = 'all', field = 'Bmod'):
+        df = pd.read_csv(self.filepath, header=None, skiprows=2)
+        df.columns = ['x','y','z','Bx','By','Bz','Bmod']
+        if axis == 'all':
+            x = df['x'].to_numpy()
+            y = df['y'].to_numpy()
+            z = df['z'].to_numpy()
+            Bmod = df['Bmod'].to_numpy()
+            return(x,y,z,Bmod)
+        else:
+            axis = df[axis].to_numpy()
+            field = df[field].to_numpy()
+            return(axis,field)
     

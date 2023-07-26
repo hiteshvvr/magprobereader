@@ -1,11 +1,13 @@
 from PyQt5.QtWidgets import QPushButton, QWidget
 from PyQt5.QtWidgets import QVBoxLayout, QLabel, QHBoxLayout
 from PyQt5.QtWidgets import QLineEdit, QFileDialog, QComboBox
-from PyQt5.QtWidgets import QPlainTextEdit #SRW
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem #SRW
+from PyQt5.QtWidgets import QPlainTextEdit 
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem 
+from PyQt5.QtCore import QSettings
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 import numpy as np
+import pandas as pd
 
 
 
@@ -15,6 +17,15 @@ class MainWindow(QWidget):
         super(QWidget, self).__init__()
         self.layout = QVBoxLayout(self)
         pg.setConfigOption('background', 'w')
+        
+        #Last Values
+        self.settings = QSettings("./magsettingts.ini", QSettings.IniFormat)
+        try:
+            self.foldname = self.settings.value('folder')
+            self.devname = self.settings.value('device')
+        except:
+            self.foldname = "Select folder to record data"
+            self.devname = "select device"
 
         # Initialize DATA
         self.data = data
@@ -25,8 +36,7 @@ class MainWindow(QWidget):
         self.width = 100
         self.unit = "Gauss"
 
-        # Create First Tab
-        # self.tab1.layout = QVBoxLayout(self)
+        # Create Layouts
         self.mainlayout = QVBoxLayout()
         self.in1layout = QHBoxLayout()
         self.in2layout = QHBoxLayout()
@@ -35,23 +45,20 @@ class MainWindow(QWidget):
         self.in5layout = QHBoxLayout()
         self.in6layout = QHBoxLayout()
         self.in7layout = QHBoxLayout()
-        # self.r1layout = QHBoxLayout()
-        # self.r2layout = QHBoxLayout()
         
         
-        self.devname = '/dev/ttyUSB0'
         self.button_connect = QPushButton('Connect Device')
         self.button_connect.clicked.connect(self.connectdevice)
         self.field_devname = QLineEdit(self.devname)
         
-        self.foldname = "Select folder to record data"
+       
         self.field_foldname = QLineEdit(self.foldname)
         
         self.button_foldname = QPushButton('Select Folder')
         self.button_foldname.clicked.connect(self.dialog)
         # self.filename = "filetoreadinfutute"
         
-        self.filename = "Enter filename to save data"
+        self.filename = "change_filename_to_save.txt"
         self.button_filename = QPushButton("Set filename")
         self.button_filename.clicked.connect(self.updatefilename)
         self.field_filename = QLineEdit(self.filename)
@@ -69,76 +76,42 @@ class MainWindow(QWidget):
         self.sel_disunit.addItems([str('mm'), str('cm'), str('inch')])
         self.sel_disunit.currentIndexChanged.connect(self.selectdisunit)
         
-        self.x = '0'
-        self.Bx = '0'
         self.xlabel = QLabel("x") 
-        self.dis_x= QLineEdit(self.x)
-        self.field_x= QLineEdit(self.Bx)
+        self.dis_x= QLineEdit(self.data.field['x'])
+        self.field_x= QLineEdit(self.data.field['Bx'])
         
-        self.y = '0'
-        self.By = '0'
         self.ylabel = QLabel("y") 
-        self.dis_y= QLineEdit(self.y)
-        self.field_y= QLineEdit(self.By)
+        self.dis_y= QLineEdit(self.data.field['y'])
+        self.field_y= QLineEdit(self.data.field['By'])
         
-        self.z = '0'
-        self.Bz = '0'
         self.zlabel = QLabel("z") 
-        self.dis_z= QLineEdit(self.z)
-        self.field_z= QLineEdit(self.Bz)
+        self.dis_z= QLineEdit(self.data.field['z'])
+        self.field_z= QLineEdit(self.data.field['Bz'])
         
-        self.fieldtotal = '0' 
-        self.field_total= QLineEdit(self.fieldtotal)
+        self.field_mod= QLineEdit(self.data.field['Bmod'])
         
         self.button_readfield = QPushButton("ReadData")
         self.button_readfield.clicked.connect(self.readfields)
-
-        # self.field_runno = QLineEdit(str(self.runno))
-        
-              
-        # self.mainlayout.addLayout(self.in5layout)
-        # self.mainlayout.addLayout(self.r1layout)
-        # self.mainlayout.addLayout(self.r2layout)
-        
-        # self.alayout.addWidget(self.pw1)
-        # self.alayout.addWidget(self.pw2)
 
 #******************************FUNCTIONS *******************************************************#
         # self.noisedata = np.random.random(20)
         # self.disax = np.arange(20)
         
-        self.pw1 = pg.PlotWidget(title="Plot Bx")
-        self.pl1 = self.pw1.plot()
-        self.pw1.setLabel('left', 'Value', units='G/T')
-        self.pw1.setLabel('bottom', 'distance', units='mm/cm/inch')
-        self.pl1.setPen(color=(0, 0, 0), width=5)
-        self.pw1.showGrid(x=True, y=True)
-        self.pl1.setData(x = np.arange(30),y = self.data.getrandomdata(30))
+        self.pwx = pg.PlotWidget(title="Plot Bx")
+        self.plx = self.pwx.plot()
+        self.initiateplot(self.pwx, self.plx)
+                
+        self.pwy = pg.PlotWidget(title="Plot By")
+        self.ply = self.pwy.plot()
+        self.initiateplot(self.pwy, self.ply)
         
+        self.pwz = pg.PlotWidget(title="Plot Bz")
+        self.plz = self.pwz.plot()
+        self.initiateplot(self.pwz, self.plz)
         
-        self.pw2 = pg.PlotWidget(title="Plot By")
-        self.pl2 = self.pw2.plot()
-        self.pw2.setLabel('left', 'Value', units='G/T')
-        self.pw2.setLabel('bottom', 'distance', units='mm/cm/inch')
-        self.pl2.setPen(color=(0, 0, 0), width=5)
-        self.pw2.showGrid(x=True, y=True)
-        self.pl2.setData(x = np.arange(30),y = self.data.getrandomdata(30))
-        
-        self.pw3 = pg.PlotWidget(title="Plot Bz")
-        self.pl3 = self.pw3.plot()
-        self.pw3.setLabel('left', 'Value', units='G/T')
-        self.pw3.setLabel('bottom', 'distance', units='mm/cm/inch')
-        self.pl3.setPen(color=(0, 0, 0), width=5)
-        self.pw3.showGrid(x=True, y=True)
-        self.pl3.setData(x = np.arange(20),y = self.data.getrandomdata(20))
-        
-        self.pw4 = pg.PlotWidget(title="Plot Bm")
-        self.pl4 = self.pw4.plot()
-        self.pw4.setLabel('left', 'Value', units='G/T')
-        self.pw4.setLabel('bottom', 'distance', units='mm/cm/inch')
-        self.pl4.setPen(color=(0, 0, 0), width=5)
-        self.pw4.showGrid(x=True, y=True)
-        self.pl4.setData(x = np.arange(20),y = self.data.getrandomdata(20))
+        self.pwm = pg.PlotWidget(title="Plot Bm")
+        self.plm = self.pwm.plot()
+        self.initiateplot(self.pwm, self.plm)
         
     ################ADD EVERYTING TO LAYOUT ############################
     
@@ -178,12 +151,12 @@ class MainWindow(QWidget):
         self.in5layout.addWidget(self.field_y)
         self.in5layout.addWidget(self.zlabel)
         self.in5layout.addWidget(self.field_z)
-        self.in5layout.addWidget(self.field_total)   
+        self.in5layout.addWidget(self.field_mod)   
         
-        self.in6layout.addWidget(self.pw1)
-        self.in6layout.addWidget(self.pw2)
-        self.in7layout.addWidget(self.pw3)
-        self.in7layout.addWidget(self.pw4)
+        self.in6layout.addWidget(self.pwx)
+        self.in6layout.addWidget(self.pwy)
+        self.in7layout.addWidget(self.pwz)
+        self.in7layout.addWidget(self.pwm)
 
 
 
@@ -202,43 +175,114 @@ class MainWindow(QWidget):
             None, "OpenDirectorytosavefiles")
         if self.foldname:
             self.field_foldname.setText(self.foldname)
-            self.data.foldname = self.foldname
+            self.settings.setValue("folder", self.foldname)
         else:
             self.field_foldname.setText= "folder not found!!"
     
     def updatefilename(self):
         self.filename = self.field_filename.text()
-        self.data.filename = self.filename
-        self.field_filename.setText(self.data.foldname+self.data.filename)        
+        self.data.filepath = str(self.foldname+ "/" + self.filename)
+        try:
+            f = open(self.data.filepath,'a+')
+            f.write('x,y,z,Bx,By,Bz,Bmod\n')
+            f.close()
+            self.writeunits()
+            self.field_filename.setText(self.filename + "\t\t opened")        
+        except:
+            self.field_filename.setText("Couldn't open file")
+            
+    def writeunits(self):
+        a = self.sel_units.currentText() + ','
+        b = self.sel_disunit.currentText() + ','
+        units = b + b + b + a + a + a + a[:-1] + '\n'
+        print(a,b)
+        try:
+            f = open(self.data.filepath,'a+')
+            f.write(units)
+            f.close()
+        except:
+            print("could not write the units")
     
     def connectdevice(self):
-        """
-        Get the data in the data class
-        """
-        self.filename = self.field_filename.text()
+        self.devname = self.field_devname.text()
+        self.settings.setValue("device", self.devname)
         msg = self.data.connectdev(self.devname)
         self.field_devname.setText(msg)
-        print("pressed")
         return
     
     def selectunits(self):
         self.unit = self.sel_units.currentText()
-        print(self.data.setunits(self.unit))
+        # print(self.data.setunits(self.unit))
         self.fieldunitlabel.setText(self.unit)
+        self.writeunits()
         
     def selectrange(self):
         self.range = self.sel_range.currentText()
         print(self.data.setrange(self.range))
+    
+    def setposition(self):
+        self.x = self.dis_x.text()
+        self.y = self.dis_y.text()
+        self.z = self.dis_z.text()
+        self.data.field['x'] = self.dis_x.text()
+        self.data.field['y'] = self.dis_y.text()
+        self.data.field['z'] = self.dis_z.text()
+        
         
     def readfields(self):
-        msg,self.Bx,self.By,self.Bz,self.Bmod = self.data.readalldata()
+        self.setposition()
+        msg = self.data.readalldata()
         print(msg)
-        self.field_x.setText("Bx  : " + self.Bx)
-        self.field_y.setText("By  : " + self.By)
-        self.field_z.setText("Bz  : " + self.Bz)
+        self.field_x.setText("Bx  : " + self.data.field['Bx'])
+        self.field_y.setText("By  : " + self.data.field['By'])
+        self.field_z.setText("By  : " + self.data.field['Bz'])
+        self.field_mod.setText("Bmod  : " + self.data.field['Bmod'])
+        
+        msg = ''
+        for key in self.data.field:
+            msg = msg + self.data.field[key] + ','
+        msg = msg[:-1] + '\n'
+        print(msg[:-1])   
+        
+        self.writefields(msg)
+        self.updateplots()
+       
         return 0
     
+    def writefields(self, msg):
+        try:
+            f = open(self.data.filepath,'a+')
+            f.write(msg)
+            f.close()
+        except:
+            print("file does not exist!")
+        
     def selectdisunit(self):
+        self.writeunits()
         return 0
     
+    def updateplots(self):
+        loc,field = self.data.getfielddata('x','Bx')
+        self.updateplot(self.pwx,self.plx,loc,field)
+        loc,field = self.data.getfielddata('y','By')
+        self.updateplot(self.pwy,self.ply,loc,field)
+        loc,field = self.data.getfielddata('z','Bz')
+        self.updateplot(self.pwz,self.plz,loc,field)
+        x,y,z,field = self.data.getfielddata()
+        
+    
+    def updateplot(self,pw,pl,x,f):
+        pw.setLabel('left', 'Value', units=self.sel_units.currentText())
+        pw.setLabel('bottom', 'distance', units=self.sel_disunit.currentText())
+        pl.setData(x = x,y = f)
+        
+         
+    def initiateplot(self,pw,pl):
+        pw.setLabel('left', 'Value', units=self.sel_units.currentText())
+        pw.setLabel('bottom', 'distance', units=self.sel_disunit.currentText())
+        pw.showGrid(x=True, y=True)
+        pl.setPen(color=(0, 0, 0), width=5)
+        pl.setData(x = np.arange(30),y = self.data.getrandomdata(30))
+        
+        
    
